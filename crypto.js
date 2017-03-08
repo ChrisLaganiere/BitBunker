@@ -29,28 +29,26 @@ var decrypt_file = function(inputfile, outputfile){
 var bcrypt = require('bcrypt');
 const saltRounds = 12; //make this bigger if you're paranoid
 
-var hash_password = function(plaintextpassword, vaultname){
+var hash_password = function(plaintextpassword, vaultname, callback){
 	bcrypt.hash(plaintextpassword, saltRounds, function(err, hash) {
 		if(err){
 			console.log('failed to hash password');
-			return false;
+			callback(err, null);
 		}
 		else{
 			//store hash in password database, associated with the vaultname field 
-			return true;
+			callback(null, hash);
 		}
 	});
 }
 
-var hash = ""; 
-var compare_password = function(plaintextpassword, vaultname){
-	var hash = ""; //this should be loaded from the database associated with the vaultname
+var compare_password = function(plaintextpassword, hash, callback){
 	bcrypt.compare(plaintextpassword, hash).then(function(result){
 		if(result){
-			//the passwords are the same 
+			callback(true);
 		}
 		else{
-			//the passwords are different
+			callback(false); 
 		}
 	});
 }
