@@ -38,7 +38,8 @@ db.filesForVault = function(vaultname, callback) {
 };
 
 db.openVault = function(vault, secret, callback) {
-  con.query('SELECT * FROM vaults WHERE name = ' + vault + ' AND secret = ' + secret, function(err, rows) {
+  var exec = "SELECT * FROM Users WHERE UserId = @0 AND password = @1";
+  con.query(exec,  function(err, rows) {
     /// ... 
     if (rows) {
       callback(true);

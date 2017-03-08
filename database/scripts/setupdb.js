@@ -9,14 +9,22 @@ var con = mysql.createConnection({
   host: "localhost",
   user: secrets.dbusername,
   password: secrets.dbpassword
+  
 });
 
 con.connect(function(err){
   if(err){
-    console.log('Error connecting to Db');
+    console.error('Error connecting to Db');
     return;
   }
   console.log('Connection established');
+});
+
+con.query('SELECT * FROM user = ?',function(err,rows){
+  if(err) throw err;
+
+  console.log('Data received from Db:\n');
+  console.log(rows);
 });
 
 con.end(function(err) {
