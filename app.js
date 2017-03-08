@@ -1,7 +1,7 @@
-var express = require('express');
+var express = require('express'); //
 var http = require('http');
 var path = require('path');
-var database = require('./database/db.js')
+var database = require('./database/db.js');
 var app = express();
 var bodyParser = require('body-parser');
 app.use(bodyParser.urlencoded({
@@ -40,13 +40,52 @@ app.post('/openvault', function(req, res) {
 
 	if (vault && password) {
 		// got vault and password
-		res.send("not implemented yet");
+		database.openvault(vault, password, function(success) {
+			if (success) {
+				res.send(JSON.stringify({"success": true}));
+				// TO DO: chris
+			} else {
+				res.send(JSON.stringify({"success": false, "reason": "Database couldn't open vault"}));
+				// TO DO: chris
+			}
+		});
 	} else {
 		// missing params
-		res.send(JSON.stringify({"success": false,
-			"reason": "missing params..."}));
+		res.send(JSON.stringify({"success": false, "reason": "missing params..."}));
 	}
 });
+
+// -> /createvault (POST)
+//   - PARAM: vault: string name of the vault to open
+//   - PARAM: password: string plaintext password
+// Return:
+//  {success: true} (opened vault for user session)
+/// {success: false, reason: "..."} (failed to open vault)
+
+
+// -> /addfile (POST)
+//	 - PARAM: filename (name of the file you want to add)
+//	 - PARAM: filepath (path to the file)
+//   - PARAM: vault: string name of the vault to open
+// Return:
+//  {success: true} (if file is added)
+/// {success: false, reason: "..."} (failed to add file //adding file to vault that isn't open)
+
+
+// -> /getfile (POST)
+//	 - PARAM: filename (name of file you want to retreive)
+//   - PARAM: vault: string name of the vault to open
+// Return:
+//  {success: true, content: "...", filename: "..."} (if you retrieved the file)
+/// {success: false, reason: "..."} (if the file isn't in the vault)
+
+
+// -> /deletefile (POST)
+//	 - PARAM: filename (name of file you want to delete)
+//   - PARAM: vault: string name of the vault to open
+// Return:
+//  {success: true} (if file is deleted)
+/// {success: false, reason: "..."} (if file isn't in vault)
 
 /****/
 
