@@ -18,18 +18,18 @@ app.use(bodyParser.json());
 
 // -> /openvault (POST)
 //   - PARAM: vault: string name of the vault to open
-//   - PARAM: password: string plaintext password
+//   - PARAM: secret: string plaintext secret
 // Return:
 //  {success: true} (opened vault for user session)
 /// {success: false, reason: "..."} (failed to open vault)
 var openvault = function(params, req, res) {
 	var vault = params['vault'];
-	var password = params['password'];
+	var secret = params['secret'];
 	console.log("user tried to open", vault);
 
-	if (vault && password) {
-		// got vault and password
-		database.openvault(vault, password, function(success) {
+	if (vault && secret) {
+		// got vault and secret
+		database.openvault(vault, secret, function(success) {
 			if (success) {
 				res.json({"success": true});
 				// TO DO: chris
@@ -46,18 +46,18 @@ var openvault = function(params, req, res) {
 
 // -> /createvault (POST)
 //   - PARAM: vault: string name of the vault to open
-//   - PARAM: password: string plaintext password
+//   - PARAM: secret: string plaintext secret
 // Return:
 //  {success: true} (opened vault for user session)
 /// {success: false, reason: "..."} (failed to open vault)
 var createvault = function(params, req, res) {
 	var vault = params['vault'];
-	var password = params['password'];
+	var secret = params['secret'];
 	console.log("user tried to create", vault);
 
-	if (vault && password) {
-		// got vault and password
-		database.createvault(vault, password, function(success) {
+	if (vault && secret) {
+		// got vault and secret
+		database.createvault(vault, secret, function(success) {
 			if (success) {
 				res.json({"success": true});
 				// TO DO: chris
@@ -88,7 +88,7 @@ var addfile = function(params, req, res) {
 	console.log("user tried to add", filename);
 
 	if (vault && filename && filepath) {
-		// got vault and password
+		// got params
 		database.addfile(vault, filename, filepath, function(success) {
 			if (success) {
 				res.json({"success": true});
@@ -116,10 +116,10 @@ var getfile = function(params, req, res) {
 	console.log("user tried to get", filename);
 
 	if (vault && filename) {
-		// got vault and password
+		// got params
 		database.getfile(vault, filename, function(success) {
 			if (success) {
-				res.json({"success": true, "filename": filename " was successfully retrieved"});
+				res.json({"success": true, "filename": filename + " was successfully retrieved"});
 				// TO DO: chris
 			} else {
 				res.json({"success": false, "reason": "Database couldn't get file because file isn't in vault"});
@@ -144,7 +144,7 @@ var deletefile = function(params, req, res) {
 	console.log("user tried to delete", filename);
 
 	if (vault && filename) {
-		// got vault and password
+		// got params
 		database.getfile(vault, filename, function(success) {
 			if (success) {
 				res.json({"success": true});
@@ -158,18 +158,20 @@ var deletefile = function(params, req, res) {
 		// missing params
 		res.json({"success": false, "reason": "missing params..."});
 	}
+};
 
 
 /*****/
 
 // actual route, with encrypted body payload
 app.post('/action', function(req, res) {
-	console.log(req.body);
+	var bunkerData = req.body['bunker'];
+	console.log("received data: ", bunkerData);
 
 	var action = "";
 	var params = {};
 
-	var bunkerData = req.body['bunker'];
+	console.log("decrypting data...");
 	if (bunkerData) {
 		var aeskey = "passwordpasswordpasswordpassword"
 		var iv = "drowssapdrowssap"
@@ -193,21 +195,28 @@ app.post('/action', function(req, res) {
 		}
 	}
 
+	console.log('finished.');
 	console.log('executing', action, params);
 	switch(action) {
 		case "openvault":
 			openvault(params, req, res);
+			break;
 		case "createvault":
 			createvault(params, req, res);
+			break;
 		case "addfile":
 			addfile(params, req, res);
+			break;
 		case "getfile":
 			getfile(params, req, res);
+			break;
 		case "deletefile":
 			deletefile(params, req, res);
+			break;
 		default:
 			console.log("unknown action, ignoring");
 			res.json({"success": false, "reason": "unknown action: " + action});
+			break;
 	}
 });
 
