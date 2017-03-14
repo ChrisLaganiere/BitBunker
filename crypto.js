@@ -48,9 +48,11 @@ var compare_password = function(plaintextpassword, vaultname){
 	bcrypt.compare(plaintextpassword, hash).then(function(result){
 		if(result){
 			//the passwords are the same 
+			return true;
 		}
 		else{
 			//the passwords are different
+			return false; 
 		}
 	});
 }
