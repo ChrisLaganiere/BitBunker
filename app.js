@@ -16,6 +16,33 @@ app.use(bodyParser.json());
 
 /*** Routes ***/
 
+// -> /openvault (POST)
+//   - PARAM: vault: string name of the vault to open
+//   - PARAM: password: string plaintext password
+// Return:
+//  {success: true} (opened vault for user session)
+/// {success: false, reason: "..."} (failed to open vault)
+app.post('/openvault', function(req, res) {
+	res.send(JSON.stringify({"success": true}));
+});
+
+app.post('/createvault', function(req, res) {
+	res.send(JSON.stringify({"success": true}));
+});
+
+app.post('/addfile', function(req, res) {
+	res.send(JSON.stringify({"success": true}));
+});
+
+app.post('/getfile', function(req, res) {
+	res.send(JSON.stringify({"success": true}));
+});
+
+app.post('/deletefile', function(req, res) {
+	res.send(JSON.stringify({"success": true}));
+});
+
+
 app.post('/action', function(req, res) {
 	console.log(req.body);
 	// TODO: implement action
@@ -50,42 +77,6 @@ app.post('/action', function(req, res) {
 	}
 
 	console.log('executing', action, params);
-
-});
-
-// -> /openvault (POST)
-//   - PARAM: vault: string name of the vault to open
-//   - PARAM: password: string plaintext password
-// Return:
-//  {success: true} (opened vault for user session)
-/// {success: false, reason: "..."} (failed to open vault)
-app.post('/openvault', function(req, res) {
-	console.log(req.body);
-
-	res.send(JSON.stringify({"success": true}));
-
-	var bunkerData = req.body['bunker'];
-	if (bunkerData) {
-		var aeskey = "passwordpasswordpasswordpassword"
-		var iv = "drowssapdrowssap"
-		console.log(secure.decrypt(aeskey, iv, bunkerData));
-	}
-});
-
-app.post('/createvault', function(req, res) {
-	res.send(JSON.stringify({"success": true}));
-});
-
-app.post('/addfile', function(req, res) {
-	res.send(JSON.stringify({"success": true}));
-});
-
-app.post('/getfile', function(req, res) {
-	res.send(JSON.stringify({"success": true}));
-});
-
-app.post('/deletefile', function(req, res) {
-	res.send(JSON.stringify({"success": true}));
 });
 
 /****/
