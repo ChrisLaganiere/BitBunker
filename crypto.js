@@ -29,30 +29,32 @@ var decrypt_file = function(inputfile, outputfile){
 var bcrypt = require('bcrypt');
 const saltRounds = 12; //make this bigger if you're paranoid
 
-var hash_password = function(plaintextpassword, vaultname){
+//callback takes 2 arguments, err and hash. One or the other, but not both, will be equal to null
+//if err==null, then bcrypt successfully hashed the password and 'hash' contains the password
+//otherwise, bcrypt failed to hash the password, 'err' contains the error that bcrypt reported, and 'hash'==null
+var hash_password = function(plaintextpassword, callback){
 	bcrypt.hash(plaintextpassword, saltRounds, function(err, hash) {
 		if(err){
 			console.log('failed to hash password');
-			return false;
+			callback(err, null); 
+
 		}
 		else{
 			//store hash in password database, associated with the vaultname field 
-			return true;
+			callback(null, hash)
 		}
 	});
 }
 
-var hash = ""; 
-var compare_password = function(plaintextpassword, vaultname){
-	var hash = ""; //this should be loaded from the database associated with the vaultname
+var compare_password = function(plaintextpassword, hash, callback){
 	bcrypt.compare(plaintextpassword, hash).then(function(result){
 		if(result){
 			//the passwords are the same 
-			return true;
+			callback(true);
 		}
 		else{
 			//the passwords are different
-			return false; 
+			callback(false); 
 		}
 	});
 }
