@@ -26,7 +26,7 @@ con.end(function(err) {
 });
 
 var db = {};
-
+/*
 db.filesForVault = function(vaultname, callback) {
   callback([
     {
@@ -36,6 +36,7 @@ db.filesForVault = function(vaultname, callback) {
     }
   ]);
 };
+*/
 
 //create vault
 
@@ -57,6 +58,8 @@ db.addFile = function(name, path, vault, callback){
 }
 
 //delete file from vault
+
+
 
 //get file vault
 

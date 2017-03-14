@@ -70,6 +70,10 @@ con.query('SELECT * FROM user = ?',function(err,rows){
   console.log(rows);
 });
 
+
+
+
+
 con.end(function(err) {
   // The connection is terminated gracefully
   // Ensures all previously enqueued queries are still
