@@ -62,6 +62,28 @@ app.post('/openvault', function(req, res) {
 //  {success: true} (opened vault for user session)
 /// {success: false, reason: "..."} (failed to open vault)
 
+app.post('/createvault', function(req, res) {
+	console.log(req.body);
+	var vault = req.body['vault'];
+	var password = req.body['password'];
+	console.log("user tried to create", vault);
+
+	if (vault && password) {
+		// got vault and password
+		database.createvault(vault, password, function(success) {
+			if (success) {
+				res.send(JSON.stringify({"success": true}));
+				// TO DO: chris
+			} else {
+				res.send(JSON.stringify({"success": false, "reason": "Database couldn't create vault"}));
+				// TO DO: chris
+			}
+		});
+	} else {
+		// missing params
+		res.send(JSON.stringify({"success": false, "reason": "missing params..."}));
+	}
+});
 
 // -> /addfile (POST)
 //	 - PARAM: filename (name of the file you want to add)
@@ -71,6 +93,29 @@ app.post('/openvault', function(req, res) {
 //  {success: true} (if file is added)
 /// {success: false, reason: "..."} (failed to add file //adding file to vault that isn't open)
 
+app.post('/addfile', function(req, res) {
+	console.log(req.body);
+	var vault = req.body['vault'];
+	var filename = req.body['filename'];
+	var filepath = req.body['filepath'];
+	console.log("user tried to add", filename);
+
+	if (vault && filename && filepath) {
+		// got vault and password
+		database.addfile(vault, filename, filepath, function(success) {
+			if (success) {
+				res.send(JSON.stringify({"success": true}));
+				// TO DO: chris
+			} else {
+				res.send(JSON.stringify({"success": false, "reason": "Database couldn't add file because file path is incorrect or vault isn't open"}));
+				// TO DO: chris
+			}
+		});
+	} else {
+		// missing params
+		res.send(JSON.stringify({"success": false, "reason": "missing params..."}));
+	}
+});
 
 // -> /getfile (POST)
 //	 - PARAM: filename (name of file you want to retreive)
@@ -79,6 +124,28 @@ app.post('/openvault', function(req, res) {
 //  {success: true, content: "...", filename: "..."} (if you retrieved the file)
 /// {success: false, reason: "..."} (if the file isn't in the vault)
 
+app.post('/getfile', function(req, res) {
+	console.log(req.body);
+	var vault = req.body['vault'];
+	var filename = req.body['filename'];
+	console.log("user tried to get", filename);
+
+	if (vault && filename) {
+		// got vault and password
+		database.getfile(vault, filename, function(success) {
+			if (success) {
+				res.send(JSON.stringify({"success": true, "filename": filename " was successfully retrieved"}));
+				// TO DO: chris
+			} else {
+				res.send(JSON.stringify({"success": false, "reason": "Database couldn't get file because file isn't in vault"}));
+				// TO DO: chris
+			}
+		});
+	} else {
+		// missing params
+		res.send(JSON.stringify({"success": false, "reason": "missing params..."}));
+	}
+});
 
 // -> /deletefile (POST)
 //	 - PARAM: filename (name of file you want to delete)
@@ -86,6 +153,29 @@ app.post('/openvault', function(req, res) {
 // Return:
 //  {success: true} (if file is deleted)
 /// {success: false, reason: "..."} (if file isn't in vault)
+
+app.post('/deletefile', function(req, res) {
+	console.log(req.body);
+	var vault = req.body['vault'];
+	var filename = req.body['filename'];
+	console.log("user tried to delete", filename);
+
+	if (vault && filename) {
+		// got vault and password
+		database.getfile(vault, filename, function(success) {
+			if (success) {
+				res.send(JSON.stringify({"success": true}));
+				// TO DO: chris
+			} else {
+				res.send(JSON.stringify({"success": false, "reason": "Database couldn't delete file because file isn't in vault"}));
+				// TO DO: chris
+			}
+		});
+	} else {
+		// missing params
+		res.send(JSON.stringify({"success": false, "reason": "missing params..."}));
+	}
+});
 
 /****/
 
