@@ -37,15 +37,45 @@ db.filesForVault = function(vaultname, callback) {
   ]);
 };
 
-db.openVault = function(vault, secret, callback) {
-  var exec = "SELECT * FROM Users WHERE UserId = @0 AND password = @1";
+//create vault
+
+//add file to vault
+db.addFile = function(name, path, vault, callback){
+  var insert = 'INSERT INTO Files (file_name, file_path, vault_name) ' + 'VALUES(?, ?, ?) '
+  + con.escape(name, path, vault); 
+  con.query(insert, function(err, results) {
+      if(err){
+        console.log('Error adding file')
+        callback(false)
+      }
+      else{
+        console.log('File added to vault!')
+        callback(true)
+      }
+  
+  }); 
+}
+
+//delete file from vault
+
+//get file vault
+
+
+
+
+//opens vault 
+db.openVault = function(vault, pwd, callback) {
+  var exec = 'SELECT * FROM Vaults WHERE vault_name = ? AND vault_pwd = ?' + con.escape(vault, pwd); 
   con.query(exec,  function(err, rows) {
-    /// ... 
-    if (rows) {
-      callback(true);
-    } else {
+    if (err) {
+      console.log('Error making query for vaults')
       callback(false);
     }
+    else{
+      console.log('Vault found!')
+      console.log(rows)
+      callback(true)
+    } 
   });
 }
 
