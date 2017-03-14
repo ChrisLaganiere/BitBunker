@@ -48,8 +48,8 @@ con.end(function(err) {
   });
 
   //create table vaults 
-  con.query('CREATE TABLE Vaults (vault_name VARCHAR(256) NOT NULL UNIQUE, vault_secret VARCHAR(256) NOT NULL,' +
-             'num_files int, PRIMARY KEY(vault_name))',
+  con.query('CREATE TABLE Vaults (vault_name VARCHAR(256) NOT NULL UNIQUE, vault_secret VARCHAR(256) NOT NULL, ' +
+             'PRIMARY KEY (vault_name))',
    function(err, result){
     // Case there is an error during the creation
     if(err) {
@@ -65,8 +65,8 @@ con.end(function(err) {
   //file_name varchar(256) NOT NULL
   //content string NOT NULL
   //vault_name varchar(256) NOT NULL 
-  con.query('CREATE TABLE Files (file_name VARCHAR(256) NOT NULL UNIQUE, file_path TEXT NOT NULL,' +
-             'vault_name varchar(256), PRIMARY KEY(file_name))',
+  con.query('CREATE TABLE Files (filename VARCHAR(256) NOT NULL, content TEXT,' +
+             'vault_name varchar(256), PRIMARY KEY (filename, vault_name))',
    function(err, result){
     // Case there is an error during the creation
     if(err) {

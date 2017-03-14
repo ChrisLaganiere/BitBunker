@@ -21,11 +21,4 @@ secure.encrypt = function(cryptkey, iv, cleardata) {
     return encode_encryptdata;
 };
 
-// secure.publicDecrypt = function(publickey, data, callback) {
-// 	var plaintext = crypto.publicDecrypt({
-// 		key: publickey
-// 	}, data);
-// 	callback(plaintext);
-// };
-
 module.exports = secure;

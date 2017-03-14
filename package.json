@@ -9,8 +9,10 @@
   "author": "UCLA CS M117 Cache Team",
   "license": "ISC",
   "dependencies": {
+    "bcrypt": "^1.0.2",
     "body-parser": "^1.16.1",
     "express": "^4.14.1",
+    "express-session": "^1.15.1",
     "letsencrypt-express": "^2.0.6",
     "mysql": "^2.13.0",
     "spdy": "^3.4.4"
