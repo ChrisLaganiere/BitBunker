@@ -1,7 +1,13 @@
 var express = require('express'); //
 var http = require('http');
 var path = require('path');
+/*
+<<<<<<< HEAD
 var database = require('./database/db.js');
+======= */
+var database = require('./database/db.js')
+var router = express.Router();
+//>>>>>>> shiv
 var app = express();
 var bodyParser = require('body-parser');
 app.use(bodyParser.urlencoded({
@@ -38,6 +44,7 @@ app.post('/openvault', function(req, res) {
 	var password = req.body['password'];
 	console.log("user tried to open", vault);
 
+//<<<<<<< HEAD
 	if (vault && password) {
 		// got vault and password
 		database.openvault(vault, password, function(success) {
@@ -175,6 +182,27 @@ app.post('/deletefile', function(req, res) {
 		// missing params
 		res.send(JSON.stringify({"success": false, "reason": "missing params..."}));
 	}
+/*=======
+				res.send("not implemented yet");
+			}
+			else {
+			// missing params
+			res.send(JSON.stringify({"success": false,
+				"reason": "missing params..."}));
+			}
+		}); 
+	});
+*///Not sure if this is needed, I left it in for now --Yaacov 
+app.use('/get/:filename', function(req, res, next) {
+	console.log(req.params['filename']);
+	res.sendFile(path.resolve(req.params['filename']));
+    // res.status(400).send(); // or return error
+    if (userHasAccess) {
+    	db.filesForVault('somevault', function(files) {
+    		res.json(files);
+    	});
+    }
+//>>>>>>> shiv
 });
 
 /****/
@@ -185,4 +213,10 @@ app.use(function(req, res, next) {
 });
 
 var server = http.createServer(app);
+<<<<<<< HEAD
 server.listen(8000);
+=======
+server.listen(8000);
+
+module.exports = router;
+>>>>>>> shiv
