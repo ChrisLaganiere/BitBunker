@@ -63,17 +63,6 @@ con.query('CREATE TABLE Files (file_name VARCHAR(256) NOT NULL UNIQUE, file_path
 }); 
 
 
-con.query('SELECT * FROM user = ?',function(err,rows){
-  if(err) throw err;
-
-  console.log('Data received from Db:\n');
-  console.log(rows);
-});
-
-
-
-
-
 con.end(function(err) {
   // The connection is terminated gracefully
   // Ensures all previously enqueued queries are still
