@@ -24,7 +24,7 @@ db.createvault = function(vault, secret, callback) {
         console.log(params);
 
         db.performQuery(insert, params, function (success, results) {
-          var event = success ? 'Vault created.' : 'Error creating vault';
+          var event = success ? 'Created vault.' : 'Error creating vault';
           console.log(event);
           callback(success);
         });
@@ -42,7 +42,7 @@ db.openvault = function(vault, secret, callback) {
     if (success && results.length > 0) {
       // compare hashes with vault
       crypto.compare_string(secret, results[0].vault_secret, function (success) {
-        var event = success ? 'Vault opened.' : 'Error opening vault';
+        var event = success ? 'Opened vault.' : 'Error opening vault';
         console.log(event);
         callback(success);
       });
@@ -55,6 +55,13 @@ db.openvault = function(vault, secret, callback) {
   });
 };
 
+//list vault contents
+db.listvault = function(vault, callback) {
+  var sel = 'SELECT * FROM Files WHERE vault_name = ?';
+  var params = [vault];
+  db.performQuery(sel, params, callback);
+}
+
 //add / update file in vault
 db.replacefile = function(filename, vault, content, callback) {
   var insert = 'REPLACE INTO Files (filename, content, vault_name) VALUES (?, ?, ?)';
@@ -63,7 +70,7 @@ db.replacefile = function(filename, vault, content, callback) {
   db.performQuery(insert, params, function (success, results) {
     // console.log(results);
     if (success && results.affectedRows > 0) {
-      console.log('File added.');
+      console.log('Added file.');
       callback(true);
     }
     else {
@@ -81,7 +88,7 @@ db.getfile = function(filename, vault, callback) {
   db.performQuery(sel, params, function (success, results) {
     // console.log(results);
     if (success && results.length > 0) {
-      console.log('Got file');
+      console.log('Got file.');
       callback(true, results[0]);
     }
     else {
@@ -98,7 +105,7 @@ db.deletefile = function(filename, vault, callback){
   
   db.performQuery(del, params, function (success, results) {
     if (success) {
-      console.log('File deleted');
+      console.log('Deleted file.');
     }
     else {
       console.log('Error deleting file');

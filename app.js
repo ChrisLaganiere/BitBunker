@@ -101,6 +101,53 @@ var openvault = function(params, req, res) {
 	}
 };
 
+// -> /listvault (POST)
+//   - PARAM: vault: string name of the vault to open
+// Return:
+//  {success: true, files: [...]} (opened vault for user session)
+//  {success: false, reason: "..."} (failed to open vault)
+var listvault = function(params, req, res) {
+	var vault = params['vault'];
+	if (vault && req.session.vaults && req.session.vaults.includes(vault)) {
+		// vault is open, list contents
+		database.listvault(vault, function(success, results) {
+			if (success) {
+				res.json({"success": true, "files": results});
+			} else {
+				res.json({"success": false, "reason": "Database couldn't retrieve vault contents"});
+			}
+		});
+	} else {
+		// missing params
+		res.json({"success": false, "reason": "missing params..."});
+	}
+};
+
+// -> /closevault (POST)
+//   - PARAM: vault: string name of the vault to close
+// Return:
+//  {success: true} (closed vault for user session)
+//  {success: false, reason: "..."} (failed to close vault)
+var closevault = function(params, req, res) {
+	var vault = params['vault'];
+
+	if (vault && req.session.vaults && req.session.vaults.includes(vault)) {
+		var vaults = req.session.vaults;
+		for(var i = vaults.length - 1; i >= 0; i--) {
+		    if(vaults[i] === vault) {
+		       vaults.splice(i, 1);
+		    }
+		}
+		res.json({"success": true});
+		req.session.vaults = vaults;
+		req.session.save();
+	}
+	else {
+		// not open, don't need to close
+		res.json({"success": false, "reason": "vault not open"});
+	}
+};
+
 // -> /addfile (POST)
 //	 - PARAM: filename (name of the file you want to add)
 //	 - PARAM: content: string
@@ -169,7 +216,7 @@ var deletefile = function(params, req, res) {
 
 	if (vault && filename) {
 		// got params
-		database.getfile(vault, filename, function(success) {
+		database.deletefile(filename, vault, function(success) {
 			if (success) {
 				res.json({"success": true});
 				// TO DO: chris
@@ -187,8 +234,8 @@ var deletefile = function(params, req, res) {
 
 // actual express route, with encrypted body payload
 app.post('/action', function(req, res) {
+	console.log("\nPOST /action\n  ", req.body);
 	var bunkerData = req.body['bunker'];
-	console.log("received data: ", req.body);
 
 	var action = "";
 	var params = {};
@@ -199,6 +246,9 @@ app.post('/action', function(req, res) {
 		var iv = "drowssapdrowssap"
 		var decrypted = secure.decrypt(aeskey, iv, bunkerData);
 		if (decrypted) {
+			// NOTE: REMOVE BEFORE PROD
+			console.log('decrypted:', '"' + decrypted + '"');
+
 			var pattern = /([^;=]*)=([^;=]*);/g;
 			var match = pattern.exec(decrypted);
 			// console.log(matches.length);
@@ -217,15 +267,20 @@ app.post('/action', function(req, res) {
 		}
 	}
 
-	console.log('finished.');
 	// NOTE: REMOVE BEFORE PROD
 	console.log('executing', action, params);
 	switch(action) {
+		case "createvault":
+			createvault(params, req, res);
+			break;
 		case "openvault":
 			openvault(params, req, res);
 			break;
-		case "createvault":
-			createvault(params, req, res);
+		case "closevault":
+			closevault(params, req, res);
+			break;
+		case "listvault":
+			listvault(params, req, res);
 			break;
 		case "replacefile":
 			replacefile(params, req, res);
