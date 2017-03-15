@@ -14,7 +14,7 @@ secure.decrypt = function(cryptkey, iv, encryptdata) {
 
 secure.encrypt = function(cryptkey, iv, cleardata) {
     var encipher = crypto.createCipheriv('aes-256-cbc', cryptkey, iv),
-        encryptdata  = encipher.update(cleardata, 'binary', 'utf8');
+        encryptdata = encipher.update(cleardata, 'utf8', 'binary');
 
     encryptdata += encipher.final('binary');
     encode_encryptdata = new Buffer(encryptdata, 'binary').toString('base64');

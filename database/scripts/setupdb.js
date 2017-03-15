@@ -65,7 +65,7 @@ con.end(function(err) {
   //file_name varchar(256) NOT NULL
   //content string NOT NULL
   //vault_name varchar(256) NOT NULL 
-  con.query('CREATE TABLE Files (filename VARCHAR(256) NOT NULL, content TEXT,' +
+  con.query('CREATE TABLE Files (filename VARCHAR(256) NOT NULL, content LONGTEXT,' +
              'vault_name varchar(256), PRIMARY KEY (filename, vault_name))',
    function(err, result){
     // Case there is an error during the creation

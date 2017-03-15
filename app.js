@@ -42,7 +42,7 @@ app.use(bodyParser.json());
 // Return:
 //  {success: true} (opened vault for user session)
 //  {success: false, reason: "..."} (failed to open vault)
-var createvault = function(params, req, res) {
+var createvault = function(params, jsoncallback, req) {
 	var vault = params['vault'];
 	var secret = params['secret'];
 
@@ -50,20 +50,19 @@ var createvault = function(params, req, res) {
 		// got vault and secret
 		database.createvault(vault, secret, function(success) {
 			if (success) {
-				res.json({"success": true});
+				jsoncallback({"success": true});
 				// open vault for this session
 				var vaults = req.session.vaults || [];
 				vaults.push(vault);
 				req.session.vaults = vaults;
 				req.session.save();
 			} else {
-				res.json({"success": false, "reason": "Database couldn't create vault"});
-				// TO DO: chris
+				jsoncallback({"success": false, "reason": "Database couldn't create vault"});
 			}
 		});
 	} else {
 		// missing params
-		res.json({"success": false, "reason": "missing params..."});
+		jsoncallback({"success": false, "reason": "missing params..."});
 	}
 };
 
@@ -73,31 +72,30 @@ var createvault = function(params, req, res) {
 // Return:
 //  {success: true} (opened vault for user session)
 //  {success: false, reason: "..."} (failed to open vault)
-var openvault = function(params, req, res) {
+var openvault = function(params, jsoncallback, req) {
 	var vault = params['vault'];
 	var secret = params['secret'];
 
 	if (vault && req.session.vaults && req.session.vaults.includes(vault)) {
-		res.json({"success": true});
+		jsoncallback({"success": true});
 	}
 	else if (vault && secret) {
 		// got vault and secret
 		database.openvault(vault, secret, function(success) {
 			if (success) {
-				res.json({"success": true});
+				jsoncallback({"success": true});
 				// open vault for this session
 				var vaults = req.session.vaults || [];
 				vaults.push(vault);
 				req.session.vaults = vaults;
 				req.session.save();
 			} else {
-				res.json({"success": false, "reason": "Database couldn't open vault"});
-				// TO DO: chris
+				jsoncallback({"success": false, "reason": "Database couldn't open vault"});
 			}
 		});
 	} else {
 		// missing params
-		res.json({"success": false, "reason": "missing params..."});
+		jsoncallback({"success": false, "reason": "missing params..."});
 	}
 };
 
@@ -106,20 +104,20 @@ var openvault = function(params, req, res) {
 // Return:
 //  {success: true, files: [...]} (opened vault for user session)
 //  {success: false, reason: "..."} (failed to open vault)
-var listvault = function(params, req, res) {
+var listvault = function(params, jsoncallback, req) {
 	var vault = params['vault'];
 	if (vault && req.session.vaults && req.session.vaults.includes(vault)) {
 		// vault is open, list contents
 		database.listvault(vault, function(success, results) {
 			if (success) {
-				res.json({"success": true, "files": results});
+				jsoncallback({"success": true, "files": results});
 			} else {
-				res.json({"success": false, "reason": "Database couldn't retrieve vault contents"});
+				jsoncallback({"success": false, "reason": "Database couldn't retrieve vault contents"});
 			}
 		});
 	} else {
 		// missing params
-		res.json({"success": false, "reason": "missing params..."});
+		jsoncallback({"success": false, "reason": "missing params..."});
 	}
 };
 
@@ -128,7 +126,7 @@ var listvault = function(params, req, res) {
 // Return:
 //  {success: true} (closed vault for user session)
 //  {success: false, reason: "..."} (failed to close vault)
-var closevault = function(params, req, res) {
+var closevault = function(params, jsoncallback, req) {
 	var vault = params['vault'];
 
 	if (vault && req.session.vaults && req.session.vaults.includes(vault)) {
@@ -138,13 +136,13 @@ var closevault = function(params, req, res) {
 		       vaults.splice(i, 1);
 		    }
 		}
-		res.json({"success": true});
+		jsoncallback({"success": true});
 		req.session.vaults = vaults;
 		req.session.save();
 	}
 	else {
 		// not open, don't need to close
-		res.json({"success": false, "reason": "vault not open"});
+		jsoncallback({"success": false, "reason": "vault not open"});
 	}
 };
 
@@ -155,7 +153,7 @@ var closevault = function(params, req, res) {
 // Return:
 //  {success: true} (if file is added)
 //  {success: false, reason: "..."} (failed to add file //adding file to vault that isn't open)
-var replacefile = function(params, req, res) {
+var replacefile = function(params, jsoncallback, req) {
 	var vault = params['vault'];
 	var filename = params['filename'];
 	var content = params['content'];
@@ -164,16 +162,14 @@ var replacefile = function(params, req, res) {
 		// got params
 		database.replacefile(filename, vault, content, function(success) {
 			if (success) {
-				res.json({"success": true});
-				// TO DO: chris
+				jsoncallback({"success": true});
 			} else {
-				res.json({"success": false, "reason": "Database couldn't replace file"});
-				// TO DO: chris
+				jsoncallback({"success": false, "reason": "Database couldn't replace file"});
 			}
 		});
 	} else {
 		// missing params
-		res.json({"success": false, "reason": "missing params..."});
+		jsoncallback({"success": false, "reason": "missing params..."});
 	}
 };
 
@@ -183,7 +179,7 @@ var replacefile = function(params, req, res) {
 // Return:
 //  {success: true, content: "...", filename: "..."} (if you retrieved the file)
 //  {success: false, reason: "..."} (if the file isn't in the vault)
-var getfile = function(params, req, res) {
+var getfile = function(params, jsoncallback, req) {
 	var vault = params['vault'];
 	var filename = params['filename'];
 
@@ -191,16 +187,14 @@ var getfile = function(params, req, res) {
 		// got params
 		database.getfile(filename, vault, function(success, result) {
 			if (success && result) {
-				res.json({"success": true, "filename": filename, "content": result.content});
-				// TO DO: chris
+				jsoncallback({"success": true, "filename": filename, "content": result.content});
 			} else {
-				res.json({"success": false, "reason": "Couldn't get file"});
-				// TO DO: chris
+				jsoncallback({"success": false, "reason": "Couldn't get file"});
 			}
 		});
 	} else {
 		// missing params
-		res.json({"success": false, "reason": "missing params..."});
+		jsoncallback({"success": false, "reason": "missing params..."});
 	}
 };
 
@@ -210,29 +204,30 @@ var getfile = function(params, req, res) {
 // Return:
 //  {success: true} (if file is deleted)
 //  {success: false, reason: "..."} (if file isn't in vault)
-var deletefile = function(params, req, res) {
+var deletefile = function(params, jsoncallback, req) {
 	var vault = params['vault'];
 	var filename = params['filename'];
 
-	if (vault && filename) {
+	if (vault && filename && req.session.vaults && req.session.vaults.includes(vault)) {
 		// got params
 		database.deletefile(filename, vault, function(success) {
 			if (success) {
-				res.json({"success": true});
-				// TO DO: chris
+				jsoncallback({"success": true});
 			} else {
-				res.json({"success": false, "reason": "Database couldn't delete file because file isn't in vault"});
-				// TO DO: chris
+				jsoncallback({"success": false, "reason": "Database couldn't delete file because file isn't in vault"});
 			}
 		});
 	} else {
 		// missing params
-		res.json({"success": false, "reason": "missing params..."});
+		jsoncallback({"success": false, "reason": "missing params..."});
 	}
 };
 
 
 // actual express route, with encrypted body payload
+// assume shared symmetric AES-256 key
+const aeskey = "passwordpasswordpasswordpassword"
+const iv = "drowssapdrowssap"
 app.post('/action', function(req, res) {
 	console.log("\nPOST /action\n  ", req.body);
 	var bunkerData = req.body['bunker'];
@@ -242,14 +237,12 @@ app.post('/action', function(req, res) {
 
 	console.log("decrypting data...");
 	if (bunkerData) {
-		var aeskey = "passwordpasswordpasswordpassword"
-		var iv = "drowssapdrowssap"
 		var decrypted = secure.decrypt(aeskey, iv, bunkerData);
 		if (decrypted) {
 			// NOTE: REMOVE BEFORE PROD
 			console.log('decrypted:', '"' + decrypted + '"');
 
-			var pattern = /([^;=]*)=([^;=]*);/g;
+			var pattern = /(.*?)==>>(.*?)<<==;/g;
 			var match = pattern.exec(decrypted);
 			// console.log(matches.length);
 			while (match != null) {
@@ -269,31 +262,40 @@ app.post('/action', function(req, res) {
 
 	// NOTE: REMOVE BEFORE PROD
 	console.log('executing', action, params);
+
+	let jsoncallback = (json) => {
+		var jsonString = JSON.stringify(json);
+		console.log("Response:", jsonString);
+		var encrypted = secure.encrypt(aeskey, iv, jsonString);
+		console.log("Encrypted:", { "bunker": encrypted});
+		res.json({"bunker": encrypted});
+	}
+
 	switch(action) {
 		case "createvault":
-			createvault(params, req, res);
+			createvault(params, jsoncallback, req);
 			break;
 		case "openvault":
-			openvault(params, req, res);
+			openvault(params, jsoncallback, req);
 			break;
 		case "closevault":
-			closevault(params, req, res);
+			closevault(params, jsoncallback, req);
 			break;
 		case "listvault":
-			listvault(params, req, res);
+			listvault(params, jsoncallback, req);
 			break;
 		case "replacefile":
-			replacefile(params, req, res);
+			replacefile(params, jsoncallback, req);
 			break;
 		case "getfile":
-			getfile(params, req, res);
+			getfile(params, jsoncallback, req);
 			break;
 		case "deletefile":
-			deletefile(params, req, res);
+			deletefile(params, jsoncallback, req);
 			break;
 		default:
 			console.log("unknown action, ignoring");
-			res.json({"success": false, "reason": "unknown action: " + action});
+			jsoncallback({"success": false, "reason": "unknown action: " + action});
 			break;
 	}
 });
